@@ -64,8 +64,17 @@ const CONFIG = {
     role: "Paid Media Specialist",
     handle: "@_nunesads",
     handleUrl: "https://instagram.com/_nunesads",
-    bio: "[BIO]",
-    highlights: ["[CASES / NÚMEROS REAIS]", "[CASES / NÚMEROS REAIS]", "[CASES / NÚMEROS REAIS]"],
+    bio:
+      "Trabalho com mídia paga para operações de iGaming no Brasil — do primeiro clique ao FTD. " +
+      "No dia a dia é campanha no Meta e no Google, estrutura de tracking, atribuição e leitura de funil.",
+    /* Áreas de atuação. Substitui a lista de cases: demonstra domínio técnico
+       sem expor nome de cliente, o que costuma esbarrar em contrato e compliance.
+       Não têm ordem — por isso não são numeradas. */
+    areas: [
+      "Aquisição paga para iGaming no Meta e no Google",
+      "Tracking server-side: Pixel, CAPI, GTM e postbacks",
+      "Keitaro: atribuição, roteamento e testes de tráfego",
+    ],
   },
 
   /* Respostas que você pediu para deixar configuráveis */
@@ -359,6 +368,17 @@ const CSS = `
 /* ---------- divisor que se desenha ---------- */
 .itp-divider{height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent);transform:scaleX(.15);opacity:0;transition:transform 1.2s cubic-bezier(.2,.7,.3,1),opacity .7s;}
 .itp-divider.is-in{transform:scaleX(1);opacity:1;}
+
+/* ---------- áreas de atuação ---------- */
+.itp-area{
+  padding:14px 16px;display:flex;align-items:center;
+  border-left:2px solid var(--neon);
+  border-top-left-radius:4px;border-bottom-left-radius:4px;
+  transition:border-color .3s,background .3s,transform .3s;
+}
+@media (hover:hover) and (pointer:fine){
+  .itp-area:hover{background:rgba(140,255,61,.05);transform:translateX(2px);}
+}
 
 /* ---------- handle social ---------- */
 .itp-handle{
@@ -1588,11 +1608,11 @@ function Instructor() {
               <p className="itp-lead" style={{ marginTop: 18 }}>{I.bio}</p>
             </div>
 
-            <ul style={{ marginTop: 24, display: "grid", gap: 10 }}>
-              {I.highlights.map((h, i) => (
-                <li key={i} className="itp-card itp-card--alt" style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                  <span className="itp-mono itp-neon" style={{ fontSize: 10, letterSpacing: ".14em" }}>{String(i + 1).padStart(2, "0")}</span>
-                  <span className="itp-small" style={{ color: "var(--gray)" }}>{h}</span>
+            <p className="itp-kpi-label" style={{ marginTop: 30 }}>No que eu opero</p>
+            <ul style={{ marginTop: 12, display: "grid", gap: 9 }}>
+              {I.areas.map((a) => (
+                <li key={a} className="itp-card itp-card--alt itp-area">
+                  <span style={{ fontSize: 14.5, color: "var(--white)", fontWeight: 600, lineHeight: 1.4 }}>{a}</span>
                 </li>
               ))}
             </ul>
