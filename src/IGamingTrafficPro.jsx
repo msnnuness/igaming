@@ -54,9 +54,16 @@ const CONFIG = {
 
   /* Seção do instrutor — placeholders editáveis, sem inventar resultado nenhum */
   instructor: {
-    photo: "",                       // URL da foto (deixe vazio para mostrar o placeholder)
-    name: "[NOME DO INSTRUTOR]",
-    role: "[EXPERIÊNCIA]",
+    /* Arquivos em /public. WebP é servido primeiro; JPG é o fallback.
+       Para trocar a foto, substitua os dois arquivos mantendo os nomes.
+       Deixe `photo` vazio para voltar ao placeholder. */
+    photo: "/instrutor.jpg",
+    photoWebp: "/instrutor.webp",
+    photoAlt: "",                    // vazio = usa "Foto de {name}"
+    name: "MATHEUS NUNES",
+    role: "Paid Media Specialist",
+    handle: "@_nunesads",
+    handleUrl: "https://instagram.com/_nunesads",
     bio: "[BIO]",
     highlights: ["[CASES / NÚMEROS REAIS]", "[CASES / NÚMEROS REAIS]", "[CASES / NÚMEROS REAIS]"],
   },
@@ -352,6 +359,16 @@ const CSS = `
 /* ---------- divisor que se desenha ---------- */
 .itp-divider{height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent);transform:scaleX(.15);opacity:0;transition:transform 1.2s cubic-bezier(.2,.7,.3,1),opacity .7s;}
 .itp-divider.is-in{transform:scaleX(1);opacity:1;}
+
+/* ---------- handle social ---------- */
+.itp-handle{
+  font-size:12px;letter-spacing:.06em;color:var(--gray);
+  border:1px solid var(--line);border-radius:100px;padding:5px 11px;
+  transition:color .25s,border-color .25s,background .25s;
+}
+@media (hover:hover) and (pointer:fine){
+  .itp-handle:hover{color:var(--neon);border-color:rgba(140,255,61,.4);background:rgba(140,255,61,.06);}
+}
 
 /* ---------- brilho de topo nos cards (desktop) ---------- */
 @media (hover:hover) and (pointer:fine){
@@ -1502,6 +1519,7 @@ function OfferStack() {
 
 function Instructor() {
   const I = CONFIG.instructor;
+  const [imgFailed, setImgFailed] = useState(false);
   return (
     <section id="instrutor" className="itp-sec">
       <div className="itp-wrap">
@@ -1519,8 +1537,20 @@ function Instructor() {
                 background: I.photo ? "transparent" : "var(--card2)",
               }}
             >
-              {I.photo ? (
-                <img src={I.photo} alt={I.name} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              {I.photo && !imgFailed ? (
+                <picture>
+                  {I.photoWebp && <source srcSet={I.photoWebp} type="image/webp" />}
+                  <img
+                    src={I.photo}
+                    alt={I.photoAlt || `Foto de ${I.name}`}
+                    width={960}
+                    height={1200}
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => setImgFailed(true)}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 28%", display: "block" }}
+                  />
+                </picture>
               ) : (
                 <span className="itp-mono itp-gray" style={{ fontSize: 11, letterSpacing: ".18em", textAlign: "center", padding: 20 }}>
                   [FOTO DO INSTRUTOR]
@@ -1536,10 +1566,25 @@ function Instructor() {
             </h2>
 
             <div style={{ marginTop: 24 }}>
-              <p style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-.02em" }}>{I.name}</p>
-              <p className="itp-mono itp-neon" style={{ fontSize: 11.5, letterSpacing: ".14em", marginTop: 8, textTransform: "uppercase" }}>
-                {I.role}
+              <p style={{ fontSize: "clamp(22px,5.5vw,28px)", fontWeight: 800, letterSpacing: "-.025em", textTransform: "uppercase" }}>
+                {I.name}
               </p>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 14px", marginTop: 10 }}>
+                <span className="itp-mono itp-neon" style={{ fontSize: 11.5, letterSpacing: ".14em", textTransform: "uppercase" }}>
+                  {I.role}
+                </span>
+                {I.handle && (
+                  <a
+                    href={I.handleUrl || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="itp-handle itp-mono"
+                    aria-label={`Perfil de ${I.name} no Instagram: ${I.handle}`}
+                  >
+                    {I.handle}
+                  </a>
+                )}
+              </div>
               <p className="itp-lead" style={{ marginTop: 18 }}>{I.bio}</p>
             </div>
 
