@@ -57,8 +57,8 @@ const CONFIG = {
     /* Arquivos em /public. WebP é servido primeiro; JPG é o fallback.
        Para trocar a foto, substitua os dois arquivos mantendo os nomes.
        Deixe `photo` vazio para voltar ao placeholder. */
-    photo: "/instrutor.jpg",
-    photoWebp: "/instrutor.webp",
+    photo: "/instrutor.jpeg",
+    photoWebp: "",                   // opcional: se subir /instrutor.webp, preencha aqui
     photoAlt: "",                    // vazio = usa "Foto de {name}"
     name: "MATHEUS NUNES",
     role: "Paid Media Specialist",
