@@ -10,8 +10,8 @@ import React, { useState, useEffect, useRef } from "react";
 
 const CONFIG = {
   /* URL única usada por TODOS os CTAs da página.
-     Troque apenas aqui quando tiver o link do checkout. */
-  checkoutUrl: "#checkout",
+     Troque apenas aqui se o link do checkout mudar. */
+  checkoutUrl: "https://pay.hotmart.com/R107221181S?checkoutMode=10",
 
   brand: {
     name1: "iGAMING",
