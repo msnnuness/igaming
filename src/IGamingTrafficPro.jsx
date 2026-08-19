@@ -46,10 +46,19 @@ const CONFIG = {
     ogImage: "",   // ex: https://seudominio.com/og.jpg (1200x630)
   },
 
-  /* Nada de ID fictício. Preencha quando for instalar. */
   tracking: {
-    gtmId: "",        // ex: "GTM-XXXXXXX"
-    metaPixelId: "",  // ex: "1234567890"
+    gtmId: "",                          // ex: "GTM-XXXXXXX" (bloco comentado no index.html)
+    metaPixelId: "1054041907363371",    // inicializado no index.html
+    /* Evento personalizado disparado no clique de qualquer CTA.
+       Aparece no Gerenciador de Eventos como "Evento personalizado". */
+    clickEvent: "CLIQUE LP",
+    /* Evento PADRÃO disparado junto do personalizado.
+       O personalizado serve para análise por seção; o padrão é o que o Meta
+       usa para otimizar campanha.
+       NÃO usar InitiateCheckout aqui: a Hotmart já dispara esse evento quando
+       o checkout carrega, e duplicar o mesmo passo do funil suja a otimização.
+       Opções: "Lead" | "CompleteRegistration" | "" (nenhum). */
+    standardEvent: "Lead",
   },
 
   /* Seção do instrutor — placeholders editáveis, sem inventar resultado nenhum */
@@ -547,6 +556,46 @@ function Counter({ value, decimals = 0, prefix = "", suffix = "", duration = 140
   );
 }
 
+/* Dispara o evento de clique no Pixel e no dataLayer.
+   O navegador costuma cancelar requisições pendentes ao sair da página, então
+   o evento do CTA é o mais fácil de se perder. Duas defesas:
+   - `eventID` permite deduplicar caso um dia o mesmo evento venha via CAPI;
+   - a navegação é adiada ~180ms para o beacon sair, com fallback imediato
+     se o Pixel não estiver carregado (bloqueador de anúncios, por exemplo). */
+function trackCtaClick(area, e) {
+  const { clickEvent, standardEvent } = CONFIG.tracking;
+  const payload = {
+    cta_area: area,                 // hero | offer | final | sticky | header | menu | modules
+    content_name: CONFIG.brand.full,
+    value: 67,
+    currency: "BRL",
+  };
+
+  // dataLayer: funciona mesmo sem GTM instalado ainda
+  if (typeof window !== "undefined") {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "cta_click", ...payload });
+  }
+
+  const fbq = typeof window !== "undefined" && window.fbq;
+  if (!fbq) return; // sem Pixel: segue a navegação normalmente
+
+  const eventID = `${area}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  fbq("trackCustom", clickEvent, payload, { eventID });
+  if (standardEvent) {
+    fbq("track", standardEvent, payload, { eventID: `std-${eventID}` });
+  }
+
+  // dá um respiro para a requisição sair antes de trocar de página
+  if (e && !e.defaultPrevented && !e.metaKey && !e.ctrlKey && e.button === 0) {
+    e.preventDefault();
+    const href = CONFIG.checkoutUrl;
+    setTimeout(() => {
+      window.location.href = href;
+    }, 180);
+  }
+}
+
 /* CTA único — todos apontam para CONFIG.checkoutUrl e carregam data-cta p/ GTM */
 function CTA({ area, children, size = "lg", variant = "primary", block = false, className = "" }) {
   return (
@@ -554,6 +603,7 @@ function CTA({ area, children, size = "lg", variant = "primary", block = false, 
       href={CONFIG.checkoutUrl}
       id={`cta-${area}`}
       data-cta={area}
+      onClick={(e) => trackCtaClick(area, e)}
       className={`itp-btn itp-btn--${variant} itp-btn--${size} ${block ? "itp-btn--block" : ""} ${className}`}
     >
       {children}
@@ -915,6 +965,7 @@ function Header() {
             href={CONFIG.checkoutUrl}
             id="cta-header"
             data-cta="header"
+            onClick={(e) => trackCtaClick("header", e)}
             className="itp-btn itp-btn--primary itp-btn--sm itp-header-cta"
             style={{ display: "none" }}
           >
@@ -949,6 +1000,7 @@ function Header() {
               href={CONFIG.checkoutUrl}
               id="cta-menu"
               data-cta="menu"
+              onClick={(e) => trackCtaClick("menu", e)}
               className="itp-btn itp-btn--primary itp-btn--md itp-btn--block"
               style={{ marginTop: 16 }}
             >
@@ -1789,6 +1841,7 @@ function StickyBar() {
         href={CONFIG.checkoutUrl}
         id="cta-sticky"
         data-cta="sticky"
+        onClick={(e) => trackCtaClick("sticky", e)}
         className="itp-btn itp-btn--primary itp-btn--sm"
         tabIndex={visible ? 0 : -1}
         style={{ flex: "none" }}
