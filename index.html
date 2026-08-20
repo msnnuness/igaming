@@ -63,15 +63,9 @@
       fbq('init', '1054041907363371');
       fbq('track', 'PageView');
     </script>
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display:none"
-        alt=""
-        src="https://www.facebook.com/tr?id=1054041907363371&ev=PageView&noscript=1"
-      />
-    </noscript>
+    <!-- O <noscript> do pixel fica no <body>: dentro do <head> só
+         são válidas as tags link/style/meta, e um <img> ali quebra
+         o build do Vite. -->
 
     <!-- ============================================================
          GOOGLE TAG MANAGER
@@ -89,6 +83,16 @@
   </head>
 
   <body>
+    <!-- ============ META PIXEL (noscript fallback) ============ -->
+    <noscript
+      ><img
+        height="1"
+        width="1"
+        style="display:none"
+        alt=""
+        src="https://www.facebook.com/tr?id=1054041907363371&amp;ev=PageView&amp;noscript=1"
+    /></noscript>
+
     <!-- ============================================================
          GTM (noscript) — descomente junto com o bloco acima.
          =============================================================
